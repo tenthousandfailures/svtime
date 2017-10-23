@@ -39,7 +39,13 @@ char* c_ctime(long int t) {
 }
 
 char* c_strftime(int bsize, char* fmt, svtime_struct *s1, char* target) {
-  strftime(target, bsize, fmt, s1);
+  char str[bsize];
+
+  strftime(str, bsize, fmt, s1);
+  // printf("C: c_strftime %s", str);
+  target = (char*)malloc((strlen(str) + 1) * sizeof(char));
+  strcpy(target, str);
+
   return (target);
 }
 

@@ -15,13 +15,13 @@ package svtime_pkg;
 
    // note best to use pure below
    // import "DPI-C" pure function void svtime_example(inout struct_time s1);
-   import "DPI-C" pure function string c_ctime(longint t);
+   import "DPI-C" pure function string c_ctime(input longint t);
    import "DPI-C" pure function longint c_time();
-   import "DPI-C" pure function void c_localtime(longint t, inout struct_time tm);
-   import "DPI-C" pure function string c_asctime(inout struct_time tm);
-   import "DPI-C" pure function longint c_mktime(inout struct_time tm);
-   import "DPI-C" pure function void c_sleep(int unsigned t);
-   import "DPI-C" pure function string c_strftime(int bsize, string fmt, inout struct_time tm, inout string target);
+   import "DPI-C" pure function void c_localtime(input longint t, inout struct_time tm);
+   import "DPI-C" pure function string c_asctime(input struct_time tm);
+   import "DPI-C" pure function longint c_mktime(input struct_time tm);
+   import "DPI-C" pure function void c_sleep(input int unsigned t);
+   import "DPI-C" pure function string c_strftime(input int bsize, input string fmt, input struct_time tm, inout string target);
 
 class svtime;
 
@@ -153,8 +153,12 @@ program top;
       svtime_inst = new();
       svtimep_inst = new();
       svtimep_inst.now();
-      $display("svtimep_inst.to_s: %s", svtimep_inst.to_s());
-      
+      $display("\tsvtimep_inst.to_s: %s", svtimep_inst.to_s());
+      buffer = "%M";
+      $display("\tsvtimep_inst.to_s: %s", svtimep_inst.to_s("%M"));
+      svtime::sleep(2);
+      svtimep_inst.now();
+      $display("\tsvtimep_inst.to_s: %s", svtimep_inst.to_s());
 
       $display("PASS asctime");
       s1 = svtime::localtime();
@@ -179,7 +183,7 @@ program top;
       $display("sv_time: %0d", svtime::sv_time());
 
       $display("PASS strftime");
-      $display("svtime_inst   strftime: %s\n", svtime::strftime(32, "%M",s1, buffer));
+      $display("svtime_inst   strftime: %s\n", svtime::strftime(32, "%M %M",s1, buffer));
 
       $display("\nPASS sleep");
       s1 = svtime::localtime();
