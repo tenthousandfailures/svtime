@@ -17,6 +17,9 @@ typedef struct {
   int tm_isdst;
 }  svtime_struct;
 
+// #define __CLOCK_T_TYPE		__SYSCALL_SLONG_TYPE
+// #define __TIME_T_TYPE		__SYSCALL_SLONG_TYPE
+
 void svtime_example(svtime_struct *s1) {
   printf("C: gets values from SV, s1.tm_sec=%d, s1.tm_min=%d\n",s1->tm_sec,s1->tm_min);
   s1->tm_sec = 10;
@@ -24,27 +27,22 @@ void svtime_example(svtime_struct *s1) {
   printf("C: set values,  s1.tm_sec=%d, s1.tm_min=%d\n",s1->tm_sec,s1->tm_min);
 }
 
-// wrap python ctime function
-// return seconds since epoc
-char* c_ctime(time_t t) {
-  char* string;
-  time_t result;
-  if (t < 0) {
-    result = time(NULL);
-  } else {
-    result = time(t);
-  }
-
-  string = ctime(&result);
-  return (string);
+char* c_ctime(long int t) {
+  return (asctime(localtime(&t)));
 }
 
 long int c_time() {
   // time_t seconds;
+  // printf("DEBUG C c_time %0d\n", time(NULL));
   return (time(NULL));
 }
 
-void c_localtime(time_t t, svtime_struct *s1) {
+long int c_mktime(svtime_struct *s1) {
+  return(mktime(s1));
+}
+
+
+void c_localtime(long int  t, svtime_struct *s1) {
   svtime_struct st;
   time_t result;
   struct tm buf;
