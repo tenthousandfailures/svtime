@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<time.h>
 #include<svdpi.h>
+#include<unistd.h>
 
 // where time comes from
 // /usr/include/time.h
@@ -20,6 +21,7 @@ typedef struct {
 // #define __CLOCK_T_TYPE		__SYSCALL_SLONG_TYPE
 // #define __TIME_T_TYPE		__SYSCALL_SLONG_TYPE
 
+
 void svtime_example(svtime_struct *s1) {
   printf("C: gets values from SV, s1.tm_sec=%d, s1.tm_min=%d\n",s1->tm_sec,s1->tm_min);
   s1->tm_sec = 10;
@@ -27,8 +29,18 @@ void svtime_example(svtime_struct *s1) {
   printf("C: set values,  s1.tm_sec=%d, s1.tm_min=%d\n",s1->tm_sec,s1->tm_min);
 }
 
+void c_sleep(int t) {
+  sleep(t);
+  return;
+}
+
 char* c_ctime(long int t) {
   return (asctime(localtime(&t)));
+}
+
+char* c_strftime(int bsize, char* fmt, svtime_struct *s1, char* target) {
+  strftime(target, bsize, fmt, s1);
+  return (target);
 }
 
 long int c_time() {
@@ -68,9 +80,5 @@ void c_localtime(long int  t, svtime_struct *s1) {
 }
 
 char* c_asctime(svtime_struct *s1) {
-  char* a;
-
-  a = asctime(s1);
-
-  return (a);
+  return (asctime(s1));
 }
