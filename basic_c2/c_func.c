@@ -21,14 +21,6 @@ typedef struct {
 // #define __CLOCK_T_TYPE		__SYSCALL_SLONG_TYPE
 // #define __TIME_T_TYPE		__SYSCALL_SLONG_TYPE
 
-
-void svtime_example(svtime_struct *s1) {
-  printf("C: gets values from SV, s1.tm_sec=%d, s1.tm_min=%d\n",s1->tm_sec,s1->tm_min);
-  s1->tm_sec = 10;
-  s1->tm_min = 20;
-  printf("C: set values,  s1.tm_sec=%d, s1.tm_min=%d\n",s1->tm_sec,s1->tm_min);
-}
-
 void c_sleep(int t) {
   sleep(t);
   return;
@@ -50,8 +42,6 @@ char* c_strftime(int bsize, char* fmt, svtime_struct *s1, char* target) {
 }
 
 long int c_time() {
-  // time_t seconds;
-  // printf("DEBUG C c_time %0d\n", time(NULL));
   return (time(NULL));
 }
 
@@ -65,7 +55,7 @@ void c_localtime(long int  t, svtime_struct *s1) {
   time_t result;
   struct tm buf;
 
-  if (t < 0) {
+  if (t == 0) {
     result = time(NULL);
   } else {
     result = time(t);

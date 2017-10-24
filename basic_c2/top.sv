@@ -14,7 +14,6 @@ package svtime_pkg;
    } struct_time;
 
    // note best to use pure below
-   // import "DPI-C" pure function void svtime_example(inout struct_time s1);
    import "DPI-C" pure function string c_ctime(input longint t);
    import "DPI-C" pure function longint c_time();
    import "DPI-C" pure function void c_localtime(input longint t, inout struct_time tm);
@@ -45,13 +44,13 @@ class svtime;
       return(c_mktime(st));
    endfunction // svtime_time
 
-   static function void sleep(int unsigned t=0);
+   static function void sleep(int unsigned t = 0);
       c_sleep(t);
       return;
    endfunction // sleep
 
    // consider default to x to behave the same
-   static function struct_time localtime(longint t = -1);
+   static function struct_time localtime(longint t = 0);
       struct_time x;
       c_localtime(t, x);
       return x;
@@ -87,8 +86,12 @@ class svtimep extends svtime;
       end
    endfunction // new
 
-   function void now();
-      tm = localtime();
+   function void now(longint t = 0);
+      if (t == 0) begin
+         tm = localtime();
+      end else begin
+         tm = super.localtime(t);
+      end
    endfunction
 
    function int mday();
@@ -121,14 +124,13 @@ class svtimep extends svtime;
       end else begin
          return(0);
       end
-   endfunction // is_dst
+   endfunction
 
-   // "%Y-%m-%d %H:%M:%S"
-   function string to_s(string fmt = "%m");
+   function string to_s(string fmt = "%Y-%m-%d %H:%M:%S");
       return(strftime(fmt));
    endfunction
 
-   function string strftime(string fmt = "%m");
+   function string strftime(string fmt = "%Y-%m-%d %H:%M:%S");
       string target;
       target = super.strftime(100, fmt, tm, target);
       return(target);
@@ -144,57 +146,60 @@ program top;
 
    struct_time s1;
    svtimep svtimep_inst;
-   svtime svtime_inst;
+
    longint        epocsec;
    string         buffer;
 
    initial begin
 
-      svtime_inst = new();
       svtimep_inst = new();
       svtimep_inst.now();
-      $display("\tsvtimep_inst.to_s: %s", svtimep_inst.to_s());
+      $display("\n svtimep convenience wrapper:");
+      $display("\t svtimep_inst.to_s() = %s", svtimep_inst.to_s());
       buffer = "%M";
-      $display("\tsvtimep_inst.to_s: %s", svtimep_inst.to_s("%M"));
+      $display("\t svtimep_inst.to_s(H M S) = %s", svtimep_inst.to_s("%H:%M:%S"));
       svtime::sleep(2);
       svtimep_inst.now();
-      $display("\tsvtimep_inst.to_s: %s", svtimep_inst.to_s());
+      $display("\t svtimep_inst.to_s = %s", svtimep_inst.to_s());
+      $display("\t svtimep_inst.to_i = %0d", svtimep_inst.to_i());
 
-      $display("PASS asctime");
+      $display("\n svtime static functions:");
       s1 = svtime::localtime();
-      $display("s1.tm_sec: %0d", s1.tm_sec);
-      $display("s1.tm_min: %0d", s1.tm_min);
+      $display("\t s1.tm_sec = %0d", s1.tm_sec);
+      $display("\t s1.tm_min = %0d", s1.tm_min);
+      $display("\t svtime::asctime(s1): %s", svtime::asctime(s1));
+      $display("\t s1.tm_sec = %0d", s1.tm_sec);
+      $display("\t s1.tm_min = %0d", s1.tm_min);
 
-      $display("svtime_inst   asctime: %s", svtime::asctime(s1));
-
+      $display("\n svtime static functions set year convert back to time:");
       s1 = svtime::localtime();
       s1.tm_year = 81;
-      $display("svtime_inst   asctime: %s", svtime::asctime(s1));
+      $display("\t svtime::asctime(s1) = %s", svtime::asctime(s1));
 
-      $display("PASS mktime");
+      $display("\n svtime static functions set sec and year:");
 		  s1.tm_sec = 1;
-		  s1.tm_year = 117;
-		  $display("SV: s1.tm_sec=%0d,s1.tm_year=%0d",s1.tm_sec,s1.tm_year);
-      $display("svtime_inst.mktime(s1): %0d", svtime::mktime(s1));
-      $display("ctime of mktime: %s", svtime::ctime(svtime::mktime(s1)));
+		  s1.tm_year = 116;
+		  $display("\t s1.tm_sec = %0d, s1.tm_year = %0d",s1.tm_sec,s1.tm_year);
+      $display("\t svtime::mktime(s1) = %0d", svtime::mktime(s1));
+      $display("\t svtime::ctime(svtime::mktime(s1))) = %s", svtime::ctime(svtime::mktime(s1)));
       epocsec = svtime::mktime(s1);
 
-      $display("PASS sv_time");
-      $display("sv_time: %0d", svtime::sv_time());
+      $display("\n svtime static function strftime:");
+      // $display("\t svtime::sv_time = %0d", svtime::sv_time());
 
-      $display("PASS strftime");
-      $display("svtime_inst   strftime: %s\n", svtime::strftime(32, "%M %M",s1, buffer));
+      $display("\t svtime::strftime(32, M M,s1, buffer) = %s", svtime::strftime(32, "%M %M",s1, buffer));
 
-      $display("\nPASS sleep");
+      $display("\n svtime static function sleep:");
       s1 = svtime::localtime();
-      $display("svtime_inst   asctime: %s", svtime::asctime(s1));
+      $display("\t svtime::asctime(s1) = %s", svtime::asctime(s1));
       svtime::sleep(2);
+      $display("\t svtime::sleep(2)");
       s1 = svtime::localtime();
-      $display("svtime_inst   asctime: %s", svtime::asctime(s1));
+      $display("\t svtime::asctime(s1) = %s", svtime::asctime(s1));
 
-      $display("PASS ctime");
-      $display("ctime: %s", svtime::ctime());
-      $display("ctime(%0d): %s", epocsec, svtime::ctime(epocsec));
+      $display("\n svtime static function ctime:");
+      $display("\t svtime::ctime() = %s", svtime::ctime());
+      $display("\t svtime::ctime(%0d) = %s", epocsec, svtime::ctime(epocsec));
 
       $finish();
    end
