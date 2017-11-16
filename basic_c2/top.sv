@@ -94,12 +94,16 @@ class svtimep extends svtime;
       end
    endfunction
 
-   function int mday();
-      return(tm.tm_mday);
+   function int sec();
+      return(tm.tm_sec);
    endfunction
 
    function int min();
       return(tm.tm_min);
+   endfunction
+
+   function int mday();
+      return(tm.tm_mday);
    endfunction
 
    function int mon();
@@ -195,20 +199,25 @@ program top;
             svtimep_inst.now();
             $display("\n svtimep convenience wrapper:");
             $display("\t svtimep_inst.to_s() = %s", svtimep_inst.to_s());
+            $display("\t svtimep_inst.sec() = %d", svtimep_inst.sec());
+            $display("\t svtimep_inst.min() = %d", svtimep_inst.min());
+
             buffer = "%M";
             $display("\t svtimep_inst.to_s(H M S) = %s", svtimep_inst.to_s("%H:%M:%S"));
             svtime::sleep(2);
             svtimep_inst.now();
-            $display("\t svtimep_inst.to_s = %s", svtimep_inst.to_s());
-            $display("\t svtimep_inst.to_i = %0d", svtimep_inst.to_i());
+            $display("\t svtimep_inst.to_s() = %s", svtimep_inst.to_s());
+            $display("\t svtimep_inst.to_i() = %0d", svtimep_inst.to_i());
 
             $display("\n svtime static functions:");
             s1 = svtime::localtime();
-            $display("\t s1.tm_sec = %0d", s1.tm_sec);
-            $display("\t s1.tm_min = %0d", s1.tm_min);
             $display("\t svtime::asctime(s1): %s", svtime::asctime(s1));
             $display("\t s1.tm_sec = %0d", s1.tm_sec);
             $display("\t s1.tm_min = %0d", s1.tm_min);
+            svtime::sleep(2);
+            s1 = svtime::localtime();
+            $display("\t svtime::asctime(s1): %s", svtime::asctime(s1));
+
 
             $display("\n svtime static functions set year convert back to time:");
             s1 = svtime::localtime();
