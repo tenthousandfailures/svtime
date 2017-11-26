@@ -1,2 +1,2 @@
-../pkg/svtime.sv
-top.sv
+./pkg/svtime.sv
+./example/top.sv

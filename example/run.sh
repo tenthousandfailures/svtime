@@ -1,6 +1,7 @@
 rm -rf c_func.so
 rm -rf simv.vdb
 rm -rf simv.daidir
+
 gcc -shared -fPIC -v -I "${VCS_HOME}/include" -o c_func.so ../pkg/c_func.c
 # -v
 
