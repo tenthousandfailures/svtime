@@ -118,7 +118,7 @@ class svtimep extends svtime;
       return(tm.tm_year);
    endfunction // year
 
-   function int to_i();
+   function longint to_i();
       return super.mktime(tm);
    endfunction
 
