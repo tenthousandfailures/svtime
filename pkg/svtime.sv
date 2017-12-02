@@ -102,6 +102,10 @@ class svtimep extends svtime;
       return(tm.tm_min);
    endfunction
 
+   function int hour();
+      return(tm.tm_hour);
+   endfunction
+
    function int mday();
       return(tm.tm_mday);
    endfunction
@@ -166,6 +170,38 @@ interface time_monitor(input reg clk);
          cycles = 0;
       end else begin
          cycles++;
+      end
+   end
+endinterface
+
+interface time_alarmclock(input reg clk);
+   parameter period = 2;
+   parameter alarm_hour = 5;
+   parameter alarm_min  = 0;
+   parameter prefix = "ta";
+
+   bit triggered = 0;
+   svtime_pkg::svtimep svtimep_inst;
+
+   // initialize the svtimep class
+   initial begin
+      svtimep_inst = new();
+      svtimep_inst.now();
+      $display("[%s] time_alarmclock at simtime %0t initial with period %0d at %2d:%2d:%2d", prefix, $time(), period, svtimep_inst.hour(), svtimep_inst.min(), svtimep_inst.sec());
+   end
+
+   // trigger if walltime equals alarm_hour and at or above alarm_min
+   always @(posedge clk) begin;
+      svtimep_inst.now();
+      if (
+          (triggered == 0) &&
+          (alarm_hour == svtimep_inst.hour()) &&
+          (alarm_min <= svtimep_inst.min())
+         ) begin
+         $display("[%s] time_alarmclock TRIGGERED at simtime %0t with period %0d at %2d:%2d:%2d", prefix, $time(), period, svtimep_inst.hour(), svtimep_inst.min(), svtimep_inst.sec());
+         triggered = 1;
+      end else begin
+         // $display("[%s] time_alarmclock NOT TRIGGERED at simtime %0t with period %0d at %2d:%2d:%2d", prefix, $time(), period, svtimep_inst.hour(), svtimep_inst.min(), svtimep_inst.sec());
       end
    end
 endinterface

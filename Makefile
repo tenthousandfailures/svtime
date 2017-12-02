@@ -37,6 +37,7 @@ help: ## Help Text
 	@echo "  Examples"
 	@echo "    > make perf_stack"
 	@echo "    > make perf_oo"
+	@echo "    > make clean shared_c vcs_example_build vcs_example_sim"
 	@echo ""
 	@echo ""
 

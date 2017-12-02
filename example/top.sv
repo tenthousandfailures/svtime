@@ -11,7 +11,8 @@ module top;
    reg            clk = 0;
 
    // NOTE: uncomment follow ling to show the time_monitor
-   time_monitor #(1) time_monitor_inst(.clk(clk));
+   time_monitor #(.period(1)) time_monitor_inst(.clk(clk));
+   time_alarmclock #(.period(1), .alarm_hour(22)) time_alarmclock_inst(.clk(clk));
 
    // using python / c style time static functions
    task perf_test1();
